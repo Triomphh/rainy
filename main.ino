@@ -14,6 +14,17 @@ const int ECHO_PIN = 15;
 const int EEPROM_ADDR = 0;                  // Address in EEPROM to store count
 const float DISTANCE_THRESHOLD = 100.0;     // Distance threshold in cm
 
+// Constants for time tracking
+const unsigned long COUNTS_PER_DAY = (24L * 60L * 60L * 4L);  // Number of 250ms periods in a day
+const int DAILY_COUNT_ADDR = 10;            // Starting EEPROM address for daily counts
+const int LAST_DAY_ADDR = 134;              // Address after daily counts (10 + 30*4 = 130 + 4)
+const int DAYS_TO_STORE = 30;               // Store 30 days of counts
+
+// Global variables for time tracking
+volatile unsigned long wdt_counts = 0;      // Counter for WDT interrupts
+unsigned long current_day = 0;              // Current day number
+int daily_count = 0;                        // People count for current day
+
 float last_distance  = 0;
 int people_count = 0;
 
@@ -104,4 +115,29 @@ void loop()
 ISR(WDT_vect) 
 {
     WDT_flag = 1;
+    wdt_counts++;
+    
+    // Check if a day has passed
+    if (wdt_counts >= COUNTS_PER_DAY) 
+    {
+        // Store daily count in EEPROM using circular buffer
+        EEPROM.put(DAILY_COUNT_ADDR + (current_day % DAYS_TO_STORE) * sizeof(int), daily_count);
+        
+#ifdef DEBUG
+        Serial.print("Day ");
+        Serial.print(current_day);
+        Serial.print(" Count: ");
+        Serial.println(daily_count);
+#endif
+        
+        // Reset daily count
+        daily_count = 0;
+        
+        // Update day counter
+        current_day++;
+        EEPROM.put(LAST_DAY_ADDR, current_day);
+        
+        // Reset WDT counter
+        wdt_counts = 0;
+    }
 }
