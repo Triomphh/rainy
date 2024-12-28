@@ -15,9 +15,9 @@ const int EEPROM_ADDR = 0;                  // Address in EEPROM to store count
 const float DISTANCE_THRESHOLD = 100.0;     // Distance threshold in cm
 
 // Constants for time tracking
-const unsigned long COUNTS_PER_DAY = (24L * 60L * 60L * 4L);  // Number of 250ms periods in a day
+const unsigned long COUNTS_PER_DAY = (24L * 60L * 60L * 1000L) / (250L + 12L);  // Number of cycles per day (250ms sleep + 12ms wake)
 const int DAILY_COUNT_ADDR = 10;            // Starting EEPROM address for daily counts
-const int LAST_DAY_ADDR = 134;              // Address after daily counts (10 + 30*4 = 130 + 4)
+const int LAST_DAY_ADDR = 134;              // Address after daily counts (10 + 30*4 = 130 (+4))
 const int DAYS_TO_STORE = 30;               // Store 30 days of counts
 
 // Global variables for time tracking
