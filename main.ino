@@ -28,6 +28,7 @@ int daily_count = 0;                        // People count for current day
 float last_distance  = 0;
 int people_count = 0;
 
+const float THRESHOLD_PERCENT = 0.25;  // 25% decrease threshold
 
 void WDT_interrupt_enable(void) 
 {
@@ -93,15 +94,18 @@ void loop()
 #endif
 
     // Person detection logic
-    if (last_distance > DISTANCE_THRESHOLD && distance < DISTANCE_THRESHOLD)
+    if (last_distance > 0 &&  // Make sure we have a valid previous reading
+        distance < (last_distance * (1.0 - THRESHOLD_PERCENT)))  // Current distance is 25% less than previous
     {
         people_count++;
-        EEPROM.put(EEPROM_ADDR, people_count);      // Store new count in EEPROM
-#ifdef DEBUG
-        Serial.print("Person detected! Count: ");
-        Serial.println(people_count);
-        delay(10);                                  // Assure prints (in deep sleep mode) 
-#endif
+        daily_count++;
+        EEPROM.put(EEPROM_ADDR, people_count);
+
+        #ifdef DEBUG
+            Serial.print("Person detected! Count: ");
+            Serial.println(people_count);
+            delay(10);                                  // Assure prints (in deep sleep mode)
+        #endif
     }
 
     last_distance = distance;
