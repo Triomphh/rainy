@@ -1,4 +1,4 @@
-#define DEBUG                               // Comment out to disable debug prints
+// #define DEBUG                               // Comment out to disable debug prints
 
 #include <EEPROM.h>
 #include <avr/io.h>
@@ -64,6 +64,17 @@ void setup()
 
     WDT_interrupt_enable();
     sei();                          // Enable interrupts
+
+    // // wait for 12 hours
+    // volatile unsigned long startup_counts = 0;
+    // const unsigned long COUNTS_TO_WAIT = (12L * 60L * 60L * 1000L) / 250L;
+    // while (startup_counts < COUNTS_TO_WAIT)
+    // {
+    //     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+    //     sleep_mode();
+    //     interrupt_wait();
+    //     startup_counts++;
+    // }
 }
 
 void loop()
